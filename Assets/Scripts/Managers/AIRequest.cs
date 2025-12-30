@@ -3,8 +3,13 @@ using System.Collections;
 using UnityEngine.Networking;
 using System;
 
-public static class AIRequest
+public class AIRequest : Monobehaviour
 {
+    public static AIManager Instance { get; private set; }
+    private void Awake()
+    {
+        Instance = this;
+    }
     const string API_KEY = "";
     const string URL_FORMAT = "https://generativelanguage.googleapis.com/v1beta/models/{0}:generateContent?key={1}";
     [SerializeFIeld] string model_name = "gemini-1.5-flash";
