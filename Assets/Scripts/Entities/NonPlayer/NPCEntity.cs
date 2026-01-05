@@ -20,7 +20,14 @@ public abstract class NPCEntity : Entity
         Timing.KillCoroutines(requestAction);
         requestAction = Timing.RunCoroutine(AIManager.Instance.RequestAction(this, messageLog).CancelWith(gameObject));
     }
-    public abstract IEnumerable<RTSAction> GetAvailableActions();
+    public virtual IEnumerable<RTSAction> GetAvailableActions()
+    {
+        yield return new()
+        {
+            actionName = "ClearMessageLog",
+            actionDesc = "Clears the message log."
+        };
+    }
     CoroutineHandle executingCommands;
     public void ExecuteCommands(List<RTSActionCommand> commands)
     {
@@ -37,7 +44,14 @@ public abstract class NPCEntity : Entity
             while (!finished) yield return Timing.WaitForOneFrame;
         }
     }
-    protected abstract void Execute(RTSActionCommand command, Action onFinish);
+    protected virtual void Execute(RTSActionCommand command, Action onFinish)
+    {
+        if (command.actionName == "ClearMessageLog")
+        {
+            messageLog.Clear();
+            onFinish?.Invoke();
+        }
+    }
 }
 public struct RTSAction
 {

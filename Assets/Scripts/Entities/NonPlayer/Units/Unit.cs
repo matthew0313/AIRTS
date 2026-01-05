@@ -14,6 +14,7 @@ public abstract class Unit : NPCEntity
     }
     public override IEnumerable<RTSAction> GetAvailableActions()
     {
+        foreach(var i in base.GetAvailableActions()) yield return i;
         yield return new()
         {
             actionName = "SendMessage",
@@ -32,6 +33,7 @@ public abstract class Unit : NPCEntity
     }
     protected override void Execute(RTSActionCommand command, Action onFinish)
     {
+        base.Execute(command, onFinish);
         if (command.actionName == "SendMessage")
         {
             string message = command.variables["message"];
@@ -51,11 +53,6 @@ public abstract class Unit : NPCEntity
                 EntityManager.Instance.entityList.Find(item => item.entityName == command.variables["targetEntityName"]),
                 float.Parse(command.variables["minDistance"]),
                 onFinish));
-        }
-        else
-        {
-            Debug.LogError("Unknown action command: " + command.actionName);
-            onFinish?.Invoke();
         }
     }
     protected override void CancelExecution()

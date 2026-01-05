@@ -59,8 +59,10 @@ public class AIManager : MonoBehaviour
             "}\n" +
             "Do not include anything else in your answer, not even ```json.\n";
         string answer = null;
+        Debug.Log(prompt);
         prompter.Prompt(prompt, text => answer = text);
         while (answer == null) yield return Timing.WaitForOneFrame;
+        Debug.Log(answer);
         ActionList tmp = JsonUtility.FromJson<ActionList>(answer);
         foreach (var i in tmp.actions)
         {

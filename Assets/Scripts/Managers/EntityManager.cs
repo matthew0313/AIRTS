@@ -30,7 +30,7 @@ public class EntityManager : MonoBehaviour
     }
     public void SendMessage(Vector3 position, Entity speaker, string message)
     {
-        player.ReceiveMessage(speaker, message);
+        if(speaker != player) player.ReceiveMessage(speaker, message);
         foreach (Entity entity in entityList)
         {
             if (entity == speaker || entity == player) continue;
