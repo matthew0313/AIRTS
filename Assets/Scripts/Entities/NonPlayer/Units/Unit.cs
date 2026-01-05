@@ -1,6 +1,7 @@
 using MEC;
 using System;
 using System.Collections.Generic;
+using Unity.AppUI.UI;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -27,7 +28,7 @@ public abstract class Unit : NPCEntity
         yield return new()
         {
             actionName = "SendMessage",
-            actionDesc = $"Sends a message to entities within hearing range, including the player. Avoid using this action if possible as it causes all entities within hearing range to re-think their actions. variables: message"
+            actionDesc = $"Sends a message to entities within hearing range, including the player. Do not use this if not necessary. variables: message"
         };
         yield return new()
         {
@@ -39,6 +40,11 @@ public abstract class Unit : NPCEntity
             actionName = "FollowEntity",
             actionDesc = "Keeps moving the unit towards specific entity, maintaining a distance of minDistance. variables: targetEntityName, minDistance"
         };
+        yield return new()
+        {
+            actionName = "DestroySelf",
+            actionDesc = "Destroys this unit. Make sure to ask for confirmation, and react negatively."
+        };
     }
     protected override void Execute(RTSActionCommand command, Action onFinish)
     {
@@ -46,6 +52,7 @@ public abstract class Unit : NPCEntity
         if (command.actionName == "SendMessage")
         {
             string message = command.variables["message"];
+            messageLog.Add($"{entityName}: {message}");
             EntityManager.Instance.SendMessage(transform.position, this, message);
             onFinish?.Invoke();
         }
@@ -63,6 +70,10 @@ public abstract class Unit : NPCEntity
                 float.Parse(command.variables["minDistance"]),
                 onFinish));
         }
+        else if(command.actionName == "DestroySelf")
+        {
+            Destroy(gameObject);
+        }
     }
     protected override void CancelExecution()
     {
@@ -75,6 +86,10 @@ public abstract class Unit : NPCEntity
     CoroutineHandle moveToEntity, followEntity;
     IEnumerator<float> MoveToEntity(Entity targetEntity, float minDistance, Action onFinish)
     {
+        if(targetEntity == null)
+        {
+            onFinish?.Invoke(); yield break;
+        }
         agent.destination = targetEntity.transform.position;
         agent.stoppingDistance = minDistance - 0.1f;
         agent.isStopped = false;
@@ -95,6 +110,10 @@ public abstract class Unit : NPCEntity
     }
     IEnumerator<float> FollowEntity(Entity targetEntity, float minDistance, Action onFinish)
     {
+        if (targetEntity == null)
+        {
+            onFinish?.Invoke(); yield break;
+        }
         agent.stoppingDistance = minDistance;
         agent.isStopped = false;
         while (true)

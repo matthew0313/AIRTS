@@ -27,14 +27,23 @@ public abstract class NPCEntity : Entity
             actionName = "ClearMessageLog",
             actionDesc = "Clears the message log."
         };
+        yield return new()
+        {
+            actionName = "WaitForSeconds",
+            actionDesc = "Waits for a specified number of seconds. variables: duration"
+        };
     }
-    CoroutineHandle executingCommands;
+    CoroutineHandle executingCommands, waitForSeconds;
     public void ExecuteCommands(List<RTSActionCommand> commands)
     {
         thinking = false;
         executingCommands = Timing.RunCoroutine(ExecutingCommands(commands).CancelWith(gameObject));
     }
-    protected virtual void CancelExecution() { Timing.KillCoroutines(executingCommands); }
+    protected virtual void CancelExecution()
+    {
+        Timing.KillCoroutines(waitForSeconds);
+        Timing.KillCoroutines(executingCommands);
+    }
     IEnumerator<float> ExecutingCommands(List<RTSActionCommand> commands)
     {
         foreach (var command in commands)
@@ -51,6 +60,15 @@ public abstract class NPCEntity : Entity
             messageLog.Clear();
             onFinish?.Invoke();
         }
+        else if(command.actionName == "WaitForSeconds")
+        {
+            waitForSeconds = Timing.RunCoroutine(WaitForSeconds(float.Parse(command.variables["duration"]), onFinish));
+        }
+    }
+    IEnumerator<float> WaitForSeconds(float seconds, Action onFinish)
+    {
+        yield return Timing.WaitForSeconds(seconds);
+        onFinish?.Invoke();
     }
 }
 public struct RTSAction

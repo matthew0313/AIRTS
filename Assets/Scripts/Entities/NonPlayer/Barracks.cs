@@ -24,7 +24,7 @@ public class Barracks : NPCEntity
             tmp += unitPrefabs[i].unitName;
             if (i < unitPrefabs.Count - 1) tmp += ", ";
         }
-        tmp += ". variables: unitType";
+        tmp += ". Do not use this action unless you are explicitly told to do so. variables: unitType";
         yield return new()
         {
             actionName = "SpawnUnit",
