@@ -3,7 +3,7 @@ using UnityEngine;
 
 public abstract class Entity : MonoBehaviour, IMessageSpeaker
 {
-    public string entityName;
+    public string entityName { get; private set; }
     public string speakerName => entityName;
     protected abstract string GetEntityName();
     public virtual void ReceiveMessage(Entity speaker, string message) { }

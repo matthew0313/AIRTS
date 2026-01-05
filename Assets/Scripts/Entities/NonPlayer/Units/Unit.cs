@@ -7,6 +7,15 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public abstract class Unit : NPCEntity
 {
+    public abstract string unitName { get; }
+    protected override string GetEntityName()
+    {
+        string name = unitName;
+        int i = 1;
+        while (EntityManager.Instance.entityList.Find((entity) => entity.entityName == name + i) != null) i++;
+        return name + i;
+    }
+
     protected NavMeshAgent agent;
     private void Awake()
     {

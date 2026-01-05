@@ -19,7 +19,7 @@ public class MessageUI : MonoBehaviour
         player.onMessageReceive += OnMessageReceive;
         inputField.onSubmit.AddListener(message =>
         {
-            player.SendMessage(message);
+            if(message != string.Empty) player.SendMessage(message);
             OnMessageReceive(player, message);
             inputField.text = string.Empty;
             EventSystem.current.SetSelectedGameObject(null);

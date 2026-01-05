@@ -6,11 +6,5 @@ using UnityEngine.AI;
 
 public class Scout : Unit
 {
-    protected override string GetEntityName()
-    {
-        string name = "Scout";
-        int i = 1;
-        while (EntityManager.Instance.entityList.Find((entity) => entity.entityName == name + i) != null) i++;
-        return name + i;
-    }
+    public override string unitName => "Scout";
 }
