@@ -1,17 +1,17 @@
 using UnityEngine;
 using Unity.InferenceEngine;
 using System.Collections.Generic;
+using Unity.InferenceEngine.Tokenization;
 
 public class AIManager : MonoBehaviour
 {
     public static AIManager Instance { get; private set; }
 
-    [SerializeField] ModelAsset modelAsset;
-    Model model;
-    Worker worker;
+    AIPrompter prompter;
     private void Awake()
     {
         Instance = this;
+        prompter = new GeminiAPI_Prompter();
     }
     public void RequestAction(NonPlayerEntity entity, List<string> messageLog)
     {
@@ -52,5 +52,19 @@ public class AIManager : MonoBehaviour
             "   ...\n" +
             "}\n" + 
             "Do not include anything else in your answer.\n";
+        prompter.Prompt(prompt, (answer) =>
+        {
+
+        });
     }
+}
+[System.Serializable]
+public struct ActionList
+{
+    public List<ActionList> list;
+}
+[System.Serializable]
+public struct ActionElement
+{
+    public string actionName;
 }
