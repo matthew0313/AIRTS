@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 public class GeminiAPI_Prompter : AIPrompter
 {
     const string api_key = "AIzaSyCRVMVsxg_BIHOQYReHm2MXytk3BSs6rqU";
-    const string request_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=";
+    const string request_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=";
     public override void Prompt(string prompt, Action<string> onRespond) => Timing.RunCoroutine(Prompting(prompt, onRespond));
     IEnumerator<float> Prompting(string prompt, Action<string> onRespond)
     {

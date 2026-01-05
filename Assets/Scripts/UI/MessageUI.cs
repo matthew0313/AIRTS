@@ -22,6 +22,7 @@ public class MessageUI : MonoBehaviour
             player.SendMessage(message);
             OnMessageReceive(player, message);
             inputField.text = string.Empty;
+            EventSystem.current.SetSelectedGameObject(null);
         });
     }
     private void Update()

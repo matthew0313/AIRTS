@@ -1,6 +1,8 @@
 using UnityEngine;
 using Unity.InferenceEngine;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
+using TMPro;
 
 public class InputManager : MonoBehaviour
 {
@@ -13,13 +15,14 @@ public class InputManager : MonoBehaviour
     }
     public Vector3 MoveInput()
     {
+        if(EventSystem.current != null && EventSystem.current.currentSelectedGameObject != null && EventSystem.current.currentSelectedGameObject.TryGetComponent<TMP_InputField>(out _)) return Vector3.zero;
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveZ = Input.GetAxisRaw("Vertical");
         return new Vector3(moveX, 0, moveZ).normalized;
     }
-    public bool CamInput(out float rotateValue)
+    public bool CamInput(out Vector2 rotateValue)
     {
-        rotateValue = Input.GetAxis("Mouse X");
+        rotateValue = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
         return Input.GetMouseButton(1);
     }
 }

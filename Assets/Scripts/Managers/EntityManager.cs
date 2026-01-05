@@ -9,10 +9,12 @@ public class EntityManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
     [field: SerializeField] public float hearingRange { get; private set; } = 10.0f;
 
     public readonly List<Entity> entityList = new();
+    Player player;
     public void AddEntity(Entity entity)
     {
         if (entityList.Find(item => item.entityName == entity.entityName))
@@ -28,11 +30,12 @@ public class EntityManager : MonoBehaviour
     }
     public void SendMessage(Vector3 position, Entity speaker, string message)
     {
+        player.ReceiveMessage(speaker, message);
         foreach (Entity entity in entityList)
         {
-            if (entity == speaker || !(entity is NPCEntity nonPlayerEntity)) continue;
+            if (entity == speaker || entity == player) continue;
             if (Vector3.Distance(position, entity.transform.position) > hearingRange) continue;
-            nonPlayerEntity.ReceiveMessage(speaker, message);
+            entity.ReceiveMessage(speaker, message);
         }
     }
     public float GetDistance(Entity entity1, Entity entity2)

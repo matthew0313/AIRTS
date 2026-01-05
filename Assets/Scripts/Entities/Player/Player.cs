@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro.EditorUtilities;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -9,14 +10,16 @@ public class Player : Entity
 
     [SerializeField] float moveSpeed = 5.0f;
     [SerializeField] float gravity = -9.81f;
-    [SerializeField] Transform rotator, modelRotator;
-    [SerializeField] float camSensitivity = 10.0f, modelRotateRate = 0.5f;
+    [SerializeField] Transform modelRotator;
+    [SerializeField] float modelRotateRate = 0.5f;
 
+    Camera mainCam;
     CharacterController controller;
     float velocityY = 0.0f;
 
     private void Awake()
     {
+        mainCam = Camera.main;
         controller = GetComponent<CharacterController>();
     }
     public event Action<Entity, string> onMessageReceive;
@@ -29,12 +32,10 @@ public class Player : Entity
     float targetRotY = 0.0f;
     void Update()
     {
-        if (InputManager.Instance.CamInput(out float rotateValue))
-        {
-            rotator.Rotate(Vector3.up, rotateValue * camSensitivity, Space.World);
-        }
-
-        Vector3 move = rotator.right * InputManager.Instance.MoveInput().x + rotator.forward * InputManager.Instance.MoveInput().z;
+        Vector3 camForward = mainCam.transform.forward, camRight = mainCam.transform.right;
+        camForward.y = 0.0f; camRight.y = 0.0f;
+        camForward.Normalize(); camRight.Normalize();
+        Vector3 move = camRight * InputManager.Instance.MoveInput().x + camForward * InputManager.Instance.MoveInput().z;
         if(move.magnitude > 0.1f) targetRotY = Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg + 90.0f;
         controller.Move(move * moveSpeed * Time.deltaTime);
 

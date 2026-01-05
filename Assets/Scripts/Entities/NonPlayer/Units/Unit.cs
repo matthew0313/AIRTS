@@ -17,7 +17,7 @@ public abstract class Unit : NPCEntity
         yield return new()
         {
             actionName = "SendMessage",
-            actionDesc = $"Sends a message to entities within hearing range. variables: message"
+            actionDesc = $"Sends a message to entities within hearing range, including the player. Avoid using this action if possible as it causes all entities within hearing range to re-think their actions. variables: message"
         };
         yield return new()
         {
@@ -73,6 +73,7 @@ public abstract class Unit : NPCEntity
         agent.stoppingDistance = minDistance - 0.1f;
         agent.isStopped = false;
         float counter = 0.0f;
+        yield return Timing.WaitForSeconds(0.1f);
         while(agent.remainingDistance > minDistance)
         {
             yield return Timing.WaitForOneFrame;

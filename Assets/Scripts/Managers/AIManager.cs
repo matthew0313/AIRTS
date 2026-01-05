@@ -2,6 +2,8 @@ using UnityEngine;
 using Unity.InferenceEngine;
 using System.Collections.Generic;
 using Unity.InferenceEngine.Tokenization;
+using Newtonsoft.Json;
+using MEC;
 
 public class AIManager : MonoBehaviour
 {
@@ -13,7 +15,7 @@ public class AIManager : MonoBehaviour
         Instance = this;
         prompter = new GeminiAPI_Prompter();
     }
-    public void RequestAction(NPCEntity entity, List<string> messageLog)
+    public IEnumerator<float> RequestAction(NPCEntity entity, List<string> messageLog)
     {
         string prompt = $"You are an AI controlling {entity.entityName}.\n" +
             $"These are your available actions:\n";
@@ -26,7 +28,7 @@ public class AIManager : MonoBehaviour
         {
             if (i == entity) continue;
             float distance = EntityManager.Instance.GetDistance(entity, i);
-            prompt += $"- {entity.entityName}: {distance:F1} units away.\n";
+            prompt += $"- {i.entityName}: {distance:F1} units away.\n";
         }
         prompt += "This is your message log:\n";
         foreach (var message in messageLog)
@@ -34,41 +36,46 @@ public class AIManager : MonoBehaviour
             prompt += $"- {message}\n";
         }
         prompt += "Based on the above information, decide your next sequence of actions and provide them in the following JSON format (leave 'actions' as empty array if you wish to do nothing):\n" +
-            "{" +
+            "{\n" +
             "   actions: [\n" +
             "       {\n" +
             "           actionName : (actionName),\n" +
-            "           variables : [\n" +
-            "               {\n" +
-            "                   key : (variable1Name),\n" +
-            "                   value : (variable1Value)\n" +
-            "               },\n" +
-            "               {\n" +
-            "                   key : (variable2Name),\n" +
-            "                   value : (variable2Value),\n" +
-            "               },\n" +
+            "           variables : {\n" +
+            "               content: [\n" +
+            "                   {\n" +
+            "                       key : (variable1Name),\n" +
+            "                       value : (variable1Value)\n" +
+            "                   },\n" +
+            "                   {\n" +
+            "                       key : (variable2Name),\n" +
+            "                       value : (variable2Value),\n" +
+            "                   },\n" +
             "               ...\n" +
-            "           ]\n" +
+            "               ]\n" +
+            "           }\n" +
             "       },\n" +
             "   ...\n" +
             "   ]\n" +
-            "}\n" + 
-            "Do not include anything else in your answer.\n";
-        Debug.Log(prompt);
-        prompter.Prompt(prompt, (answer) =>
+            "}\n" +
+            "Do not include anything else in your answer, not even ```json.\n";
+        string answer = null;
+        prompter.Prompt(prompt, text => answer = text);
+        while (answer == null) yield return Timing.WaitForOneFrame;
+        ActionList tmp = JsonUtility.FromJson<ActionList>(answer);
+        foreach (var i in tmp.actions)
         {
-            Debug.Log(answer);
-            ActionList tmp = JsonUtility.FromJson<ActionList>(answer);
-            foreach(var i in tmp.list)
+            string log = i.actionName;
+            foreach (var k in i.variables)
             {
-                Debug.Log(i.actionName);
+                log += $"\n{k.Key}: {k.Value}";
             }
-            entity.ExecuteCommands(tmp.list);
-        });
+            Debug.Log(log);
+        }
+        entity.ExecuteCommands(tmp.actions);
     }
 }
 [System.Serializable]
-public struct ActionList
+public class ActionList
 {
-    public List<RTSActionCommand> list;
+    public List<RTSActionCommand> actions = new();
 }
