@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.InferenceEngine;
 using System.Collections.Generic;
+using UnityEngine.AI;
 
 public class EntityManager : MonoBehaviour
 {
@@ -29,10 +30,26 @@ public class EntityManager : MonoBehaviour
     {
         foreach (Entity entity in entityList)
         {
-            if (entity == speaker || !(entity is NonPlayerEntity nonPlayerEntity)) continue;
+            if (entity == speaker || !(entity is NPCEntity nonPlayerEntity)) continue;
             if (Vector3.Distance(position, entity.transform.position) > hearingRange) continue;
             nonPlayerEntity.ReceiveMessage(speaker, message);
         }
     }
-    public float GetDistance(Entity entity1, Entity entity2) => Vector3.Distance(entity1.transform.position, entity2.transform.position);
+    public float GetDistance(Entity entity1, Entity entity2)
+    {
+        NavMeshPath path = new();
+        if (NavMesh.CalculatePath(entity1.transform.position, entity2.transform.position, NavMesh.AllAreas, path))
+        {
+            float distance = 0f;
+            for (int i = 1; i < path.corners.Length; i++)
+            {
+                distance += Vector3.Distance(path.corners[i - 1], path.corners[i]);
+            }
+            return distance;
+        }
+        else
+        {
+            return float.MaxValue;
+        }
+    }
 }

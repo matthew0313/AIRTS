@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Entity : MonoBehaviour
+public abstract class Entity : MonoBehaviour, IMessageSpeaker
 {
     public string entityName { get; private set; }
+    public string speakerName => entityName;
     protected abstract string GetEntityName();
+    public virtual void ReceiveMessage(Entity speaker, string message) { }
     private void OnEnable()
     {
         entityName = GetEntityName();
