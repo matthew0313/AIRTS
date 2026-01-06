@@ -32,7 +32,7 @@ public class Barracks : NPCEntity
         yield return new()
         {
             actionName = "MessageLowMoney",
-            actionDesc = "Sends the message 'Not enough money'."
+            actionDesc = $"Sends the message 'Not enough money' to entities within hearing range ({EntityManager.Instance.hearingRange}), including the player."
         };
     }
     protected override void Execute(RTSActionCommand command, Action onFinish, bool last = false)
@@ -47,6 +47,11 @@ public class Barracks : NPCEntity
                 GameManager.Instance.AddMoney(-spawnInfo.spawnCost);
                 Instantiate(spawnInfo.unitPrefab, spawnPoint.position, Quaternion.identity);
             }
+            onFinish?.Invoke();
+        }
+        else if(command.actionName == "MessageLowMoney")
+        {
+            EntityManager.Instance.SendMessage(transform.position, this, "Not enough money");
             onFinish?.Invoke();
         }
     }

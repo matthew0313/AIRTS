@@ -3410,6 +3410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de74c59e73f9de54c97c0bf8aaae9737, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AIManager
+  gameInfo: []
 --- !u!4 &1682148516
 Transform:
   m_ObjectHideFlags: 0
@@ -3504,8 +3505,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b03af76a17fe76a468e5f30e185c47c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Barracks
-  unitPrefabs:
-  - {fileID: 5932533731776190552, guid: bdc250b857983df4ba40ea97decf519e, type: 3}
+  spawnOptions: []
   spawnPoint: {fileID: 219037215}
 --- !u!1 &1906433355
 GameObject:

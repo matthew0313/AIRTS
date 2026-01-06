@@ -7,15 +7,18 @@ public abstract class NPCEntity : Entity
 {
     const int maxLogSize = 50;
     protected readonly List<string> messageLog = new();
-
+    protected void AddMessageLog(string message)
+    {
+        messageLog.Add(message);
+        if (messageLog.Count > maxLogSize) messageLog.RemoveAt(0);
+    }
     public bool thinking { get; private set; } = false;
     CoroutineHandle requestAction;
     public override void ReceiveMessage(Entity speaker, string message)
     {
         base.ReceiveMessage(speaker, message);
         CancelExecution();
-        messageLog.Add($"{speaker.entityName}: {message}");
-        if (messageLog.Count > maxLogSize) messageLog.RemoveAt(0);
+        AddMessageLog($"{speaker.entityName}: {message}");
         thinking = true;
         Timing.KillCoroutines(requestAction);
         requestAction = Timing.RunCoroutine(AIManager.Instance.RequestAction(this, messageLog).CancelWith(gameObject));
@@ -72,7 +75,6 @@ public abstract class NPCEntity : Entity
         for(int i = 0; i < commands.Count; i++)
         {
             bool finished = false;
-            Debug.Log($"{i}, {commands.Count}");
             Execute(commands[i], () => finished = true, i == commands.Count - 1);
             while (!finished) yield return Timing.WaitForOneFrame;
             prevCommands.Add(commands[i]);
@@ -106,8 +108,7 @@ public abstract class NPCEntity : Entity
         if (infoType == "SelfPosition")
         {
             Vector3 pos = transform.position;
-            messageLog.Add($"Info - Position of yourself: X={pos.x:F1}, Y={pos.y:F1}, Z={pos.z:F1}");
-            if (messageLog.Count > maxLogSize) messageLog.RemoveAt(0);
+            AddMessageLog($"Info - Position of yourself: X={pos.x:F1}, Y={pos.y:F1}, Z={pos.z:F1}");
         }
     }
     IEnumerator<float> WaitForSeconds(float seconds, Action onFinish)
