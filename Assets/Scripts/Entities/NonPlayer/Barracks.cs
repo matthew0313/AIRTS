@@ -31,9 +31,9 @@ public class Barracks : NPCEntity
             actionDesc = tmp
         };
     }
-    protected override void Execute(RTSActionCommand command, Action onFinish)
+    protected override void Execute(RTSActionCommand command, Action onFinish, bool last = false)
     {
-        base.Execute(command, onFinish);
+        base.Execute(command, onFinish, last);
         if(command.actionName == "SpawnUnit")
         {
             string unitType = command.variables["unitType"];

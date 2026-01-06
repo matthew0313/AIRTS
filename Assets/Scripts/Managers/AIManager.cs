@@ -35,6 +35,17 @@ public class AIManager : MonoBehaviour
         {
             prompt += $"- {message}\n";
         }
+        prompt += "These are your previous actions:\n";
+        foreach(var command in entity.prevCommands)
+        {
+            prompt += $"- {command.actionName} with variables: ";
+            foreach (var variable in command.variables)
+            {
+                prompt += $"{variable.Key} = {variable.Value}, ";
+            }
+            prompt = prompt.TrimEnd(',', ' ');
+            prompt += "\n";
+        }
         prompt += "Based on the above information, decide your next sequence of actions and provide them in the following JSON format (leave 'actions' as empty array if you wish to do nothing):\n" +
             "{\n" +
             "   actions: [\n" +

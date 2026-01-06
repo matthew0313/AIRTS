@@ -2,6 +2,7 @@ using MEC;
 using System;
 using System.Collections.Generic;
 using Unity.AppUI.UI;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -28,7 +29,12 @@ public abstract class Unit : NPCEntity
         yield return new()
         {
             actionName = "SendMessage",
-            actionDesc = $"Sends a message to entities within hearing range, including the player. Do not use this if not necessary. variables: message"
+            actionDesc = $"Sends a message to entities within hearing range ({EntityManager.Instance.hearingRange}), including the player. Do not use this if not necessary. variables: message"
+        };
+        yield return new()
+        {
+            actionName = "MoveToCoordinates",
+            actionDesc = "Moves the unit towards specific coordinates. Once the distance between the unit and the coordinates becomes smaller than minDistance, this action stops. variables: targetX, targetY, targetZ, minDistance"
         };
         yield return new()
         {
@@ -46,15 +52,24 @@ public abstract class Unit : NPCEntity
             actionDesc = "Destroys this unit. Make sure to ask for confirmation, and react negatively."
         };
     }
-    protected override void Execute(RTSActionCommand command, Action onFinish)
+    protected override void Execute(RTSActionCommand command, Action onFinish, bool last = false)
     {
-        base.Execute(command, onFinish);
+        base.Execute(command, onFinish, last);
         if (command.actionName == "SendMessage")
         {
             string message = command.variables["message"];
             messageLog.Add($"{entityName}: {message}");
             EntityManager.Instance.SendMessage(transform.position, this, message);
             onFinish?.Invoke();
+        }
+        else if(command.actionName == "MoveToCoordinates")
+        {
+            moveToCoordinates = Timing.RunCoroutine(MoveToCoordinates(
+                float.Parse(command.variables["targetX"]),
+                float.Parse(command.variables["targetY"]),
+                float.Parse(command.variables["targetZ"]),
+                float.Parse(command.variables["minDistance"]),
+                onFinish));
         }
         else if (command.actionName == "MoveToEntity")
         {
@@ -70,7 +85,7 @@ public abstract class Unit : NPCEntity
                 float.Parse(command.variables["minDistance"]),
                 onFinish));
         }
-        else if(command.actionName == "DestroySelf")
+        else if (command.actionName == "DestroySelf")
         {
             Destroy(gameObject);
         }
@@ -79,11 +94,22 @@ public abstract class Unit : NPCEntity
     {
         base.CancelExecution();
         agent.isStopped = true;
+        Timing.KillCoroutines(moveToCoordinates);
         Timing.KillCoroutines(moveToEntity);
         Timing.KillCoroutines(followEntity);
     }
     const float pathRefreshRate = 0.5f;
-    CoroutineHandle moveToEntity, followEntity;
+    CoroutineHandle moveToCoordinates, moveToEntity, followEntity;
+    IEnumerator<float> MoveToCoordinates(float x, float y, float z, float minDistance, Action onFinish)
+    {
+        agent.destination = new Vector3(x, y, z);
+        agent.stoppingDistance = minDistance - 0.1f;
+        agent.isStopped = false;
+        yield return Timing.WaitForSeconds(0.1f);
+        while (agent.remainingDistance > minDistance) yield return Timing.WaitForOneFrame;
+        agent.isStopped = true;
+        onFinish?.Invoke();
+    }
     IEnumerator<float> MoveToEntity(Entity targetEntity, float minDistance, Action onFinish)
     {
         if(targetEntity == null)
