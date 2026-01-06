@@ -32,12 +32,27 @@ public abstract class NPCEntity : Entity
             actionName = "WaitForSeconds",
             actionDesc = "Waits for a specified number of seconds. variables: duration"
         };
+        string infoTypes = string.Empty;
+        foreach(var i in GetRequestableInfoTypes()) infoTypes += $"- {i.infoType}: {i.description}\n";
         yield return new()
         {
             actionName = "RequestInfo",
             actionDesc = "You can use this to request additional information. The information will be added into your message log. If you plan to use this action, use only this type of action and nothing else, as you will re-think with the informations provided. You can use this multiple times to request more than one information at once. Information types you can request are as following:\n" +
-            "EntityPosition: returns the absolute XYZ position of an entity. This entity can be yourself. needed variables: entityName\n" +
+            infoTypes + 
             "variables: InfoType (e.g: 'EntityPosition') + needed variables for that type"
+        };
+    }
+    protected struct RequestableInfo
+    {
+        public string infoType;
+        public string description;
+    }
+    protected virtual IEnumerable<RequestableInfo> GetRequestableInfoTypes()
+    {
+        yield return new()
+        {
+            infoType = "SelfPosition",
+            description = "Gets the absolute XYZ position of yourself."
         };
     }
     CoroutineHandle executingCommands, waitForSeconds;
@@ -76,30 +91,23 @@ public abstract class NPCEntity : Entity
         }
         else if(command.actionName == "RequestInfo")
         {
-            string infoType = command.variables["InfoType"];
-            if (infoType == "EntityPosition")
-            {
-                string entityName = command.variables["entityName"];
-                Entity targetEntity = EntityManager.Instance.entityList.Find(item => item.entityName == entityName);
-                if (targetEntity != null)
-                {
-                    Vector3 pos = targetEntity.transform.position;
-                    messageLog.Add($"Info - Position of {entityName}: X={pos.x:F1}, Y={pos.y:F1}, Z={pos.z:F1}");
-                }
-                else
-                {
-                    messageLog.Add($"Info - Entity {entityName} not found.");
-                }
-                if (messageLog.Count > maxLogSize) messageLog.RemoveAt(0);
-            }
+            RequestInfo(command.variables["InfoType"], command.variables);
             onFinish?.Invoke();
-            Debug.Log(last);
             if (last)
             {
                 thinking = true;
                 Timing.KillCoroutines(requestAction);
                 requestAction = Timing.RunCoroutine(AIManager.Instance.RequestAction(this, messageLog).CancelWith(gameObject));
             }
+        }
+    }
+    protected virtual void RequestInfo(string infoType, Dictionary<string, string> variables)
+    {
+        if (infoType == "SelfPosition")
+        {
+            Vector3 pos = transform.position;
+            messageLog.Add($"Info - Position of yourself: X={pos.x:F1}, Y={pos.y:F1}, Z={pos.z:F1}");
+            if (messageLog.Count > maxLogSize) messageLog.RemoveAt(0);
         }
     }
     IEnumerator<float> WaitForSeconds(float seconds, Action onFinish)

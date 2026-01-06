@@ -29,7 +29,7 @@ public abstract class Unit : NPCEntity
         yield return new()
         {
             actionName = "SendMessage",
-            actionDesc = $"Sends a message to entities within hearing range ({EntityManager.Instance.hearingRange}), including the player. Do not use this if not necessary. variables: message"
+            actionDesc = $"Sends a message to entities within hearing range ({EntityManager.Instance.hearingRange}), including the player. Do not use this if not necessary. It is recommended to move to the entity before sending a message. variables: message"
         };
         yield return new()
         {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.InferenceEngine.Tokenization;
 using Newtonsoft.Json;
 using MEC;
+using Unity.VisualScripting;
 
 public class AIManager : MonoBehaviour
 {
@@ -15,10 +16,16 @@ public class AIManager : MonoBehaviour
         Instance = this;
         prompter = new GeminiAPI_Prompter();
     }
+    [SerializeField] List<string> gameInfo;
     public IEnumerator<float> RequestAction(NPCEntity entity, List<string> messageLog)
     {
-        string prompt = $"You are an AI controlling {entity.entityName}.\n" +
-            $"These are your available actions:\n";
+        string prompt = $"You are an AI controlling {entity.entityName}.\n";
+        prompt += "These are extra things you should know about the game:\n";
+        foreach(var i in gameInfo)
+        {
+            prompt += $"- {i}\n";
+        }
+        prompt += $"These are your available actions:\n";
         foreach(var action in entity.GetAvailableActions())
         {
             prompt += $"- {action.actionName}: {action.actionDesc}\n";

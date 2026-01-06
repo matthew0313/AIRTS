@@ -6,7 +6,7 @@ using UnityEngine.AI;
 
 public class Barracks : NPCEntity
 {
-    [SerializeField] List<Unit> unitPrefabs;
+    [SerializeField] List<UnitSpawnInfo> spawnOptions;
     [SerializeField] Transform spawnPoint;
     protected override string GetEntityName()
     {
@@ -19,16 +19,20 @@ public class Barracks : NPCEntity
     {
         foreach (var i in base.GetAvailableActions()) yield return i;
         string tmp = "Spawns a unit. Unit types you can spawn are: ";
-        for(int i = 0; i < unitPrefabs.Count; i++)
+        for(int i = 0; i < spawnOptions.Count; i++)
         {
-            tmp += unitPrefabs[i].unitName;
-            if (i < unitPrefabs.Count - 1) tmp += ", ";
+            tmp += $"- {spawnOptions[i].unitPrefab.unitName}, cost: {spawnOptions[i].spawnCost}\n";
         }
-        tmp += ". Do not use this action unless you are explicitly told to do so. variables: unitType";
+        tmp += "Do not use this action unless you are explicitly told to do so. This action will be skipped if there is not enough money. variables: unitType";
         yield return new()
         {
             actionName = "SpawnUnit",
             actionDesc = tmp
+        };
+        yield return new()
+        {
+            actionName = "MessageLowMoney",
+            actionDesc = "Sends the message 'Not enough money'."
         };
     }
     protected override void Execute(RTSActionCommand command, Action onFinish, bool last = false)
@@ -37,12 +41,19 @@ public class Barracks : NPCEntity
         if(command.actionName == "SpawnUnit")
         {
             string unitType = command.variables["unitType"];
-            Unit prefab = unitPrefabs.Find(item => item.unitName == unitType);
-            if (prefab != null)
+            UnitSpawnInfo spawnInfo = spawnOptions.Find(item => item.unitPrefab.unitName == unitType);
+            if (spawnInfo.unitPrefab != null && GameManager.Instance.money >= spawnInfo.spawnCost)
             {
-                Instantiate(prefab, spawnPoint.position, Quaternion.identity);
+                GameManager.Instance.AddMoney(-spawnInfo.spawnCost);
+                Instantiate(spawnInfo.unitPrefab, spawnPoint.position, Quaternion.identity);
             }
             onFinish?.Invoke();
         }
+    }
+    [System.Serializable]
+    public struct UnitSpawnInfo
+    {
+        public Unit unitPrefab;
+        public int spawnCost;
     }
 }
