@@ -11,6 +11,7 @@ public class MessageUI : MonoBehaviour
     [SerializeField] Transform elementAnchor;
     [SerializeField] int maxElements = 40;
     [SerializeField] TMP_InputField inputField;
+    [SerializeField] TTSMessage tts;
     readonly List<MessageUIElement> elements = new();
     Player player;
     private void Awake()
@@ -35,6 +36,8 @@ public class MessageUI : MonoBehaviour
 
     private void OnMessageReceive(Entity speaker, string message)
     {
+        if(speaker!=player) tts.PlayTTS(message);
+
         MessageUIElement element;
         if (elements.Count >= maxElements)
         {
