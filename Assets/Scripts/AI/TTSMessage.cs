@@ -6,13 +6,23 @@ using UnityEngine.Networking;
 public class TTSMessage : MonoBehaviour
 {
     [SerializeField] AudioSource audioSource;
-
+    readonly List<AudioSource> sources = new();
     void Start()
     {
         if(audioSource==null)
             audioSource = gameObject.GetComponent<AudioSource>();
     }
-
+    private void OnDisable()
+    {
+        foreach (var i in sources) i.Stop();
+    }
+    AudioSource GetSource()
+    {
+        foreach(var i in sources) if (!i.isPlaying) return i;
+        AudioSource tmp = new GameObject("TTS").AddComponent<AudioSource>();
+        sources.Add(tmp);
+        return tmp;
+    }
     public void PlayTTS(string message) => StartCoroutine(_PlayTTS(message));
 
     IEnumerator _PlayTTS(string message)
@@ -35,8 +45,9 @@ public class TTSMessage : MonoBehaviour
                 yield break;
             }
 
-            audioSource.clip = DownloadHandlerAudioClip.GetContent(req);
-            audioSource.Play();
+            var source = GetSource();
+            source.clip = DownloadHandlerAudioClip.GetContent(req);
+            source.Play();
         }
     }
 }

@@ -9,6 +9,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public abstract class Unit : NPCEntity
 {
+    [SerializeField] protected Animator anim;
     public abstract string unitName { get; }
     protected override string GetEntityName()
     {
@@ -23,13 +24,18 @@ public abstract class Unit : NPCEntity
     {
         agent = GetComponent<NavMeshAgent>();
     }
+    readonly int moveSpeedID = Animator.StringToHash("MoveSpeed");
+    private void Update()
+    {
+        anim.SetFloat(moveSpeedID, agent.velocity.magnitude / agent.speed);
+    }
     public override IEnumerable<RTSAction> GetAvailableActions()
     {
         foreach(var i in base.GetAvailableActions()) yield return i;
         yield return new()
         {
             actionName = "SendMessage",
-            actionDesc = $"Sends a message to entities within hearing range ({EntityManager.Instance.hearingRange}), including the player. Do not use this if not necessary. It is recommended to move to the entity before sending a message. variables: message"
+            actionDesc = $"Sends a message to entities within hearing range ({EntityManager.Instance.hearingRange}), including the player. It is recommended to move to the entity before sending a message. Do not use this if not necessary, as it causes all entities within hearing range to re-think. variables: message"
         };
         yield return new()
         {

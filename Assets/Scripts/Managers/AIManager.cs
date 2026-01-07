@@ -26,7 +26,7 @@ public class AIManager : MonoBehaviour
             prompt += $"- {i}\n";
         }
         prompt += "These are current global information:\n" +
-            $"Player's Money: {GameManager.Instance.money}";
+            $"Player's Money: {GameManager.Instance.money}\n";
         prompt += $"These are your available actions:\n";
         foreach(var action in entity.GetAvailableActions())
         {
