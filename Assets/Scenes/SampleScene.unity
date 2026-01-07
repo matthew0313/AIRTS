@@ -881,7 +881,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed5167bb69a97f04ba487067fe90e097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  <money>k__BackingField: 0
+  <money>k__BackingField: 9999
 --- !u!4 &593421261
 Transform:
   m_ObjectHideFlags: 0
