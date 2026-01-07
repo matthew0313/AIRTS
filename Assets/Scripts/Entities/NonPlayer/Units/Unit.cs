@@ -10,6 +10,7 @@ using UnityEngine.AI;
 public abstract class Unit : NPCEntity
 {
     [SerializeField] protected Animator anim;
+    [SerializeField] PooledEffect destroyEffect;
     public abstract string unitName { get; }
     protected override string GetEntityName()
     {
@@ -93,6 +94,7 @@ public abstract class Unit : NPCEntity
         }
         else if (command.actionName == "DestroySelf")
         {
+            destroyEffect.Get(transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
     }

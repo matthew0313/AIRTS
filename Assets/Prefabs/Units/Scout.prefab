@@ -442,7 +442,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 0
+  m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &5932533731776190552
@@ -458,6 +458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scout
   anim: {fileID: 5840139131155819229}
+  destroyEffect: {fileID: 5082968225340663321, guid: 47208b54dcd6a2646a501260c18174e6, type: 3}
 --- !u!1 &8809140324202224180
 GameObject:
   m_ObjectHideFlags: 0
@@ -616,7 +617,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7f20c5f3afad661428355ccec19fb3bd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7f20c5f3afad661428355ccec19fb3bd, type: 3}
       propertyPath: m_LocalPosition.z
